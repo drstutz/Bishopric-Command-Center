@@ -1739,6 +1739,38 @@
   }
 
   // ── INIT — load all data from Supabase on page load ──
+  const defaultActivities = [
+    { date: 'Jul 1',  title: 'No Activity — 4th of July Week' },
+    { date: 'Jul 8',  title: 'Temple Trip · 6:30 & 7:30pm (32 spots)' },
+    { date: 'Jul 15', title: 'Night Games' },
+    { date: 'Jul 22', title: 'Ward Celebration · Little Elm Beach & BBQ · 6–8pm' },
+    { date: 'Jul 29', title: 'Combined YM/YW · TBD' },
+    { date: 'Aug 5',  title: 'Joint YM/YW · Deacons in Charge' },
+    { date: 'Aug 12', title: 'Individual Classes · Cultural Night (Deacons)' },
+    { date: 'Aug 19', title: 'Stake Combined Activity' },
+    { date: 'Aug 26', title: 'Individual Classes · TBD' },
+    { date: 'Sep 2',  title: 'Joint YM/YW' },
+    { date: 'Sep 9',  title: 'Individual Classes' },
+    { date: 'Sep 16', title: 'Stake Combined · Etiquette Dinner' },
+    { date: 'Sep 23', title: 'Individual Classes · TBD' },
+    { date: 'Sep 30', title: 'Combined YM/YW' },
+    { date: 'Oct 3',  title: 'General Conference' },
+    { date: 'Oct 7',  title: 'Joint YM/YW' },
+    { date: 'Oct 14', title: 'Individual Classes' },
+    { date: 'Oct 21', title: 'Stake Combined' },
+    { date: 'Oct 28', title: 'Fall Festival (Ward)' },
+    { date: 'Nov 4',  title: 'Joint YM/YW' },
+    { date: 'Nov 11', title: 'Individual Classes' },
+    { date: 'Nov 18', title: 'Stake Combined' },
+    { date: 'Nov 25', title: 'No Activity — Thanksgiving' },
+    { date: 'Dec 2',  title: 'Joint YM/YW' },
+    { date: 'Dec 9',  title: 'Individual Classes' },
+    { date: 'Dec 16', title: 'Joint YM/YW' },
+    { date: 'Dec 19', title: 'Ward Christmas Party (Sat)' },
+    { date: 'Dec 23', title: 'No Activity — Christmas' },
+    { date: 'Dec 30', title: 'No Activity — New Year\'s' },
+  ];
+
   async function initFromSupabase() {
     const keys = ['assignments','activities','pulseIndex','pulseLog','leaders','customRes','radarItems','actionItems','milestones'];
     const defaults = {
@@ -1947,37 +1979,7 @@
   initFromSupabase();
 
   // ── UPCOMING ACTIVITIES ──
-  const defaultActivities = [
-    { date: 'Jul 1',  title: 'No Activity — 4th of July Week' },
-    { date: 'Jul 8',  title: 'Temple Trip · 6:30 & 7:30pm (32 spots)' },
-    { date: 'Jul 15', title: 'Night Games' },
-    { date: 'Jul 22', title: 'Ward Celebration · Little Elm Beach & BBQ · 6–8pm' },
-    { date: 'Jul 29', title: 'Combined YM/YW · TBD' },
-    { date: 'Aug 5',  title: 'Joint YM/YW · Deacons in Charge' },
-    { date: 'Aug 12', title: 'Individual Classes · Cultural Night (Deacons)' },
-    { date: 'Aug 19', title: 'Stake Combined Activity' },
-    { date: 'Aug 26', title: 'Individual Classes · TBD' },
-    { date: 'Sep 2',  title: 'Joint YM/YW' },
-    { date: 'Sep 9',  title: 'Individual Classes' },
-    { date: 'Sep 16', title: 'Stake Combined · Etiquette Dinner' },
-    { date: 'Sep 23', title: 'Individual Classes · TBD' },
-    { date: 'Sep 30', title: 'Combined YM/YW' },
-    { date: 'Oct 3',  title: 'General Conference' },
-    { date: 'Oct 7',  title: 'Joint YM/YW' },
-    { date: 'Oct 14', title: 'Individual Classes' },
-    { date: 'Oct 21', title: 'Stake Combined' },
-    { date: 'Oct 28', title: 'Fall Festival (Ward)' },
-    { date: 'Nov 4',  title: 'Joint YM/YW' },
-    { date: 'Nov 11', title: 'Individual Classes' },
-    { date: 'Nov 18', title: 'Stake Combined' },
-    { date: 'Nov 25', title: 'No Activity — Thanksgiving' },
-    { date: 'Dec 2',  title: 'Joint YM/YW' },
-    { date: 'Dec 9',  title: 'Individual Classes' },
-    { date: 'Dec 16', title: 'Joint YM/YW' },
-    { date: 'Dec 19', title: 'Ward Christmas Party (Sat)' },
-    { date: 'Dec 23', title: 'No Activity — Christmas' },
-    { date: 'Dec 30', title: 'No Activity — New Year\'s' },
-  ];
+  // defaultActivities moved to top
 
   let activities = load('activities', defaultActivities);
 
