@@ -725,6 +725,151 @@
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.2/Sortable.min.js">
   
+
+  // ── DRAG + RESIZE ──
+  function saveWidgetStates() {
+    const states = {};
+    document.querySelectorAll('.dash-widget').forEach(el => {
+      if (!el.dataset.wid) return;
+      states[el.dataset.wid] = {
+        x: parseFloat(el.dataset.x || 0),
+        y: parseFloat(el.dataset.y || 0),
+        w: el.style.width || '',
+        h: el.style.height || ''
+      };
+    });
+    save('widgetStates', states);
+  }
+
+  function restoreWidgetStates() {
+    const states = load('widgetStates', null);
+    if (!states) return;
+    document.querySelectorAll('.dash-widget').forEach(el => {
+      const s = states[el.dataset.wid];
+      if (!s) return;
+      if (s.x || s.y) {
+        el.style.transform = `translate(${s.x}px, ${s.y}px)`;
+        el.dataset.x = s.x;
+        el.dataset.y = s.y;
+      }
+      if (s.w) el.style.width = s.w;
+      if (s.h) el.style.height = s.h;
+    });
+  }
+
+  function initWidgets() {
+    if (typeof interact === 'undefined') return;
+
+    interact('.dash-widget')
+      .draggable({
+        allowFrom: '.drag-bar',
+        inertia: false,
+        listeners: {
+          start: e => e.target.classList.add('dragging'),
+          move: e => {
+            const x = (parseFloat(e.target.dataset.x) || 0) + e.dx;
+            const y = (parseFloat(e.target.dataset.y) || 0) + e.dy;
+            e.target.style.transform = `translate(${x}px, ${y}px)`;
+            e.target.dataset.x = x;
+            e.target.dataset.y = y;
+          },
+          end: e => { e.target.classList.remove('dragging'); saveWidgetStates(); }
+        }
+      })
+      .resizable({
+        edges: { right: true, bottom: true, bottomRight: '.resize-handle' },
+        modifiers: [interact.modifiers.restrictSize({ minWidth: 260, minHeight: 80 })],
+        listeners: {
+          move: e => {
+            e.target.style.width = e.rect.width + 'px';
+            e.target.style.height = e.rect.height + 'px';
+            const x = (parseFloat(e.target.dataset.x) || 0) + (e.deltaRect.left || 0);
+            const y = (parseFloat(e.target.dataset.y) || 0) + (e.deltaRect.top || 0);
+            e.target.style.transform = `translate(${x}px, ${y}px)`;
+            e.target.dataset.x = x;
+            e.target.dataset.y = y;
+          },
+          end: () => saveWidgetStates()
+        }
+      });
+
+    restoreWidgetStates();
+  }
+
+  document.addEventListener('DOMContentLoaded', initWidgets);
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/interact.js/1.10.27/interact.min.js">
+  // ── DRAG + RESIZE ──
+  function saveWidgetStates() {
+    const states = {};
+    document.querySelectorAll('.dash-widget').forEach(el => {
+      if (!el.dataset.wid) return;
+      states[el.dataset.wid] = {
+        x: parseFloat(el.dataset.x || 0),
+        y: parseFloat(el.dataset.y || 0),
+        w: el.style.width || '',
+        h: el.style.height || ''
+      };
+    });
+    save('widgetStates', states);
+  }
+
+  function restoreWidgetStates() {
+    const states = load('widgetStates', null);
+    if (!states) return;
+    document.querySelectorAll('.dash-widget').forEach(el => {
+      const s = states[el.dataset.wid];
+      if (!s) return;
+      if (s.x || s.y) {
+        el.style.transform = `translate(${s.x}px, ${s.y}px)`;
+        el.dataset.x = s.x;
+        el.dataset.y = s.y;
+      }
+      if (s.w) el.style.width = s.w;
+      if (s.h) el.style.height = s.h;
+    });
+  }
+
+  function initWidgets() {
+    if (typeof interact === 'undefined') return;
+
+    interact('.dash-widget')
+      .draggable({
+        allowFrom: '.drag-bar',
+        inertia: false,
+        listeners: {
+          start: e => e.target.classList.add('dragging'),
+          move: e => {
+            const x = (parseFloat(e.target.dataset.x) || 0) + e.dx;
+            const y = (parseFloat(e.target.dataset.y) || 0) + e.dy;
+            e.target.style.transform = `translate(${x}px, ${y}px)`;
+            e.target.dataset.x = x;
+            e.target.dataset.y = y;
+          },
+          end: e => { e.target.classList.remove('dragging'); saveWidgetStates(); }
+        }
+      })
+      .resizable({
+        edges: { right: true, bottom: true, bottomRight: '.resize-handle' },
+        modifiers: [interact.modifiers.restrictSize({ minWidth: 260, minHeight: 80 })],
+        listeners: {
+          move: e => {
+            e.target.style.width = e.rect.width + 'px';
+            e.target.style.height = e.rect.height + 'px';
+            const x = (parseFloat(e.target.dataset.x) || 0) + (e.deltaRect.left || 0);
+            const y = (parseFloat(e.target.dataset.y) || 0) + (e.deltaRect.top || 0);
+            e.target.style.transform = `translate(${x}px, ${y}px)`;
+            e.target.dataset.x = x;
+            e.target.dataset.y = y;
+          },
+          end: () => saveWidgetStates()
+        }
+      });
+
+    restoreWidgetStates();
+  }
+
+  document.addEventListener('DOMContentLoaded', initWidgets);
 </script>
 </head>
 <body>
@@ -773,10 +918,11 @@
       </div>
     </div>
 
-    <div class="grid-wide">
+    <div id="dashCanvas">
 
-      <!-- TO-DO LIST -->
-      <div class="card">
+      <div class="dash-widget card" id="dw-todo" data-wid="todo" style="margin-bottom:20px;">
+        <div class="drag-bar"><span>• • • • •</span></div>
+        <div class="resize-handle"></div>
         <div class="card-header">
           <div class="card-title">To-Do List</div>
           <span class="card-badge badge-gold" id="assignCount">—</span>
@@ -788,8 +934,9 @@
         <div id="assignmentList"></div>
       </div>
 
-      <!-- UPCOMING ACTIVITIES -->
-      <div class="card">
+      <div class="dash-widget card" id="dw-activities" data-wid="activities" style="margin-bottom:20px;">
+        <div class="drag-bar"><span>• • • • •</span></div>
+        <div class="resize-handle"></div>
         <div class="card-header">
           <div class="card-title">Upcoming Activities</div>
           <span class="card-badge badge-gold" id="activityCount">—</span>
@@ -802,53 +949,35 @@
         <div id="activityList"></div>
       </div>
 
-    </div>
+      <div class="dash-widget card" id="dw-links" data-wid="links" style="margin-bottom:20px;">
+        <div class="drag-bar"><span>• • • • •</span></div>
+        <div class="resize-handle"></div>
+        <div class="card-header">
+          <div class="card-title">Quick Links</div>
+          <span class="card-badge badge-gold">Resources</span>
+        </div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
+          <a href="https://docs.google.com/spreadsheets/d/1iW9BZ3PKmZSgwsEOln3po0zUIt_WMjCr/edit?gid=566168885#gid=566168885" target="_blank" class="quick-link-btn">
+            <span class="ql-icon">📅</span><span>Sacrament Meeting Planner</span>
+          </a>
+          <a href="https://docs.google.com/spreadsheets/d/1sLepnuCDzWt9gXKlf5CRXHXHvY80Z2TQkEFv3myVxlU/edit?gid=2126766411#gid=2126766411" target="_blank" class="quick-link-btn">
+            <span class="ql-icon">⚜️</span><span>Deacons Quorum 2026</span>
+          </a>
+          <a href="https://docs.google.com/spreadsheets/d/10XNl4MTDDCdFBsHOnBzzZrg3VyYrHRbwKvh23U86esk/edit?gid=101670726#gid=101670726" target="_blank" class="quick-link-btn">
+            <span class="ql-icon">📋</span><span>Ward Council Agenda</span>
+          </a>
+          <a href="https://docs.google.com/document/d/1dhLBHIBL5POwv8CHrFyiaDV1MfAIWH_dh5w6j79KdOY/edit?tab=t.un3c5yxx4x2j" target="_blank" class="quick-link-btn">
+            <span class="ql-icon">🗓️</span><span>Bishopric Meeting Agenda</span>
+          </a>
+          <a href="https://docs.google.com/document/d/14G_N_PsH8allRUrBThTQcPnGXynQpCpObhxuHmPCpZI/edit?tab=t.0" target="_blank" class="quick-link-btn">
+            <span class="ql-icon">🏛️</span><span>Temple Recommend Questions</span>
+          </a>
+          <a href="https://www.churchofjesuschrist.org/study?lang=eng" target="_blank" class="quick-link-btn">
+            <span class="ql-icon">📖</span><span>Gospel Library</span>
+          </a>
+        </div>
+      </div>
 
-    <!-- WEEKLY PULSE -->
-    <div class="card" style="margin-bottom:20px;">
-      <div class="card-header">
-        <div class="card-title">Weekly Pulse</div>
-        <span class="card-badge badge-green">Claude-Prompted</span>
-      </div>
-      <div class="pulse-prompt">
-        <div class="pulse-prompt-label">This Week's Check-In</div>
-        <div class="pulse-prompt-text" id="pulseQuestion">Loading prompt...</div>
-      </div>
-      <textarea class="pulse-input" id="pulseEntry" placeholder="Type your update here..."></textarea>
-      <div style="margin-top: 10px; display: flex; gap: 8px;">
-        <button class="btn btn-gold" onclick="savePulse()">Save Entry</button>
-        <button class="btn btn-ghost" onclick="newPulsePrompt()">New Prompt</button>
-      </div>
-      <div class="section-label" style="margin-top: 20px;">Recent Entries</div>
-      <div id="pulseLog"></div>
-    </div>
-
-    <!-- QUICK LINKS -->
-    <div class="card" id="quickLinksCard" style="margin-bottom:20px;">
-      <div class="card-header">
-        <div class="card-title">Quick Links</div>
-        <span class="card-badge badge-gold">Resources</span>
-      </div>
-      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
-        <a href="https://docs.google.com/spreadsheets/d/1iW9BZ3PKmZSgwsEOln3po0zUIt_WMjCr/edit?gid=566168885#gid=566168885" target="_blank" class="quick-link-btn">
-          <span class="ql-icon">📅</span><span>Sacrament Meeting Planner</span>
-        </a>
-        <a href="https://docs.google.com/spreadsheets/d/1sLepnuCDzWt9gXKlf5CRXHXHvY80Z2TQkEFv3myVxlU/edit?gid=2126766411#gid=2126766411" target="_blank" class="quick-link-btn">
-          <span class="ql-icon">⚜️</span><span>Deacons Quorum 2026</span>
-        </a>
-        <a href="https://docs.google.com/spreadsheets/d/10XNl4MTDDCdFBsHOnBzzZrg3VyYrHRbwKvh23U86esk/edit?gid=101670726#gid=101670726" target="_blank" class="quick-link-btn">
-          <span class="ql-icon">📋</span><span>Ward Council Agenda</span>
-        </a>
-        <a href="https://docs.google.com/document/d/1dhLBHIBL5POwv8CHrFyiaDV1MfAIWH_dh5w6j79KdOY/edit?tab=t.un3c5yxx4x2j" target="_blank" class="quick-link-btn">
-          <span class="ql-icon">🗓️</span><span>Bishopric Meeting Agenda</span>
-        </a>
-        <a href="https://docs.google.com/document/d/14G_N_PsH8allRUrBThTQcPnGXynQpCpObhxuHmPCpZI/edit?tab=t.0" target="_blank" class="quick-link-btn">
-          <span class="ql-icon">🏛️</span><span>Temple Recommend Questions</span>
-        </a>
-        <a href="https://www.churchofjesuschrist.org/study?lang=eng" target="_blank" class="quick-link-btn">
-          <span class="ql-icon">📖</span><span>Gospel Library</span>
-        </a>
-      </div>
     </div>
 
   </div>
@@ -1708,7 +1837,7 @@
   ];
 
   async function initFromSupabase() {
-    const keys = ['assignments','activities','pulseIndex','pulseLog','leaders','customRes','radarItems','actionItems','milestones'];
+    const keys = ['assignments','activities','leaders','customRes','radarItems','actionItems','milestones'];
     const defaults = {
       assignments: [],
       activities: defaultActivities,
@@ -1739,8 +1868,6 @@
       // Push into global vars
       if (key === 'assignments') assignments = val;
       else if (key === 'activities') activities = val;
-      else if (key === 'pulseIndex') pulseIndex = val;
-      else if (key === 'pulseLog') pulseLog = val;
       else if (key === 'leaders') leaders = val;
       else if (key === 'customRes') customRes = val;
       else if (key === 'radarItems') radarItems = val;
@@ -1753,8 +1880,6 @@
     // Re-render everything
     renderAssignments();
     renderActivities();
-    renderPulsePrompt();
-    renderPulseLog();
     renderLeaders();
     renderCustomRes();
     if (document.getElementById('radarList')) renderRadar();
@@ -1961,44 +2086,7 @@
 
   renderActivities();
 
-  // ── WEEKLY PULSE ──
-  const pulsePrompts = [
-    "Who in your stewardship needs a visit or call this week?",
-    "Is there a deacon you haven't connected with in over a month?",
-    "What's one thing you can do this week to strengthen missionary work in the ward?",
-    "Are there any Primary teachers who need support or encouragement?",
-    "How did sacrament meeting feel this week — what stood out?",
-    "What's weighing on you in your calling right now?",
-    "Who are you praying for specifically this week?",
-    "Is there a family in the ward you feel prompted to reach out to?",
-    "What's one thing you observed about the youth this week?",
-    "How are you doing spiritually — what's feeding you right now?",
-  ];
 
-  let pulseIndex = load('pulseIndex', 0);
-  let pulseLog = load('pulseLog', []);
-
-  function renderPulsePrompt() {
-    document.getElementById('pulseQuestion').textContent = pulsePrompts[pulseIndex % pulsePrompts.length];
-  }
-
-  function newPulsePrompt() {
-    pulseIndex = (pulseIndex + 1) % pulsePrompts.length;
-    save('pulseIndex', pulseIndex);
-    renderPulsePrompt();
-  }
-
-  function savePulse() {
-    const text = document.getElementById('pulseEntry').value.trim();
-    if (!text) return;
-    const now = new Date();
-    const dateStr = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-    pulseLog.unshift({ date: dateStr, text, prompt: pulsePrompts[pulseIndex % pulsePrompts.length] });
-    if (pulseLog.length > 20) pulseLog.pop();
-    save('pulseLog', pulseLog);
-    document.getElementById('pulseEntry').value = '';
-    newPulsePrompt();
-    renderPulseLog();
   }
 
   function renderPulseLog() {
@@ -2014,9 +2102,6 @@
       </div>
     `).join('');
   }
-
-  renderPulsePrompt();
-  renderPulseLog();
 
   // ── LEADERS ROSTER ──
   let leaders = load('leaders', []);
@@ -2256,6 +2341,78 @@
   renderMilestones();
 
   
+
+  // ── DRAG + RESIZE ──
+  function saveWidgetStates() {
+    const states = {};
+    document.querySelectorAll('.dash-widget').forEach(el => {
+      if (!el.dataset.wid) return;
+      states[el.dataset.wid] = {
+        x: parseFloat(el.dataset.x || 0),
+        y: parseFloat(el.dataset.y || 0),
+        w: el.style.width || '',
+        h: el.style.height || ''
+      };
+    });
+    save('widgetStates', states);
+  }
+
+  function restoreWidgetStates() {
+    const states = load('widgetStates', null);
+    if (!states) return;
+    document.querySelectorAll('.dash-widget').forEach(el => {
+      const s = states[el.dataset.wid];
+      if (!s) return;
+      if (s.x || s.y) {
+        el.style.transform = `translate(${s.x}px, ${s.y}px)`;
+        el.dataset.x = s.x;
+        el.dataset.y = s.y;
+      }
+      if (s.w) el.style.width = s.w;
+      if (s.h) el.style.height = s.h;
+    });
+  }
+
+  function initWidgets() {
+    if (typeof interact === 'undefined') return;
+
+    interact('.dash-widget')
+      .draggable({
+        allowFrom: '.drag-bar',
+        inertia: false,
+        listeners: {
+          start: e => e.target.classList.add('dragging'),
+          move: e => {
+            const x = (parseFloat(e.target.dataset.x) || 0) + e.dx;
+            const y = (parseFloat(e.target.dataset.y) || 0) + e.dy;
+            e.target.style.transform = `translate(${x}px, ${y}px)`;
+            e.target.dataset.x = x;
+            e.target.dataset.y = y;
+          },
+          end: e => { e.target.classList.remove('dragging'); saveWidgetStates(); }
+        }
+      })
+      .resizable({
+        edges: { right: true, bottom: true, bottomRight: '.resize-handle' },
+        modifiers: [interact.modifiers.restrictSize({ minWidth: 260, minHeight: 80 })],
+        listeners: {
+          move: e => {
+            e.target.style.width = e.rect.width + 'px';
+            e.target.style.height = e.rect.height + 'px';
+            const x = (parseFloat(e.target.dataset.x) || 0) + (e.deltaRect.left || 0);
+            const y = (parseFloat(e.target.dataset.y) || 0) + (e.deltaRect.top || 0);
+            e.target.style.transform = `translate(${x}px, ${y}px)`;
+            e.target.dataset.x = x;
+            e.target.dataset.y = y;
+          },
+          end: () => saveWidgetStates()
+        }
+      });
+
+    restoreWidgetStates();
+  }
+
+  document.addEventListener('DOMContentLoaded', initWidgets);
 </script>
 
 </body>
