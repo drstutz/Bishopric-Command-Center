@@ -722,6 +722,50 @@
     .nav-inner { padding: 0 16px; overflow-x: auto; }
     .tab { white-space: nowrap; padding: 12px 14px 10px; }
   }
+
+  /* ── WIDGET DRAG ── */
+  .dash-widget { position: relative; }
+  .dash-widget .drag-bar {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 28px;
+    cursor: grab;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 20;
+    pointer-events: all;
+    background: rgba(184,151,58,0.08);
+    border-radius: 4px 4px 0 0;
+  }
+  .dash-widget .drag-bar span {
+    font-size: 14px;
+    color: var(--gold);
+    letter-spacing: 3px;
+    user-select: none;
+    pointer-events: none;
+  }
+  .dash-widget .resize-handle {
+    position: absolute;
+    bottom: 0; right: 0;
+    width: 24px; height: 24px;
+    cursor: nwse-resize;
+    z-index: 20;
+    pointer-events: all;
+  }
+  .dash-widget .resize-handle::after {
+    content: '';
+    position: absolute;
+    bottom: 5px; right: 5px;
+    width: 10px; height: 10px;
+    border-bottom: 2.5px solid var(--gold);
+    border-right: 2.5px solid var(--gold);
+  }
+  .dash-widget.dragging {
+    opacity: 0.85;
+    box-shadow: 0 8px 28px rgba(0,0,0,0.15);
+    z-index: 999;
+  }
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.2/Sortable.min.js">
   
@@ -869,7 +913,7 @@
     <div id="dashCanvas">
 
       <div class="dash-widget card" id="dw-todo" data-wid="todo" style="margin-bottom:20px;">
-        <div class="drag-bar"><span>• • • • •</span></div>
+        <div class="drag-bar" title="Drag to move"><span>⠿ ⠿ ⠿</span></div>
         <div class="resize-handle"></div>
         <div class="card-header">
           <div class="card-title">To-Do List</div>
@@ -883,7 +927,7 @@
       </div>
 
       <div class="dash-widget card" id="dw-activities" data-wid="activities" style="margin-bottom:20px;">
-        <div class="drag-bar"><span>• • • • •</span></div>
+        <div class="drag-bar" title="Drag to move"><span>⠿ ⠿ ⠿</span></div>
         <div class="resize-handle"></div>
         <div class="card-header">
           <div class="card-title">Upcoming Activities</div>
@@ -898,7 +942,7 @@
       </div>
 
       <div class="dash-widget card" id="dw-links" data-wid="links" style="margin-bottom:20px;">
-        <div class="drag-bar"><span>• • • • •</span></div>
+        <div class="drag-bar" title="Drag to move"><span>⠿ ⠿ ⠿</span></div>
         <div class="resize-handle"></div>
         <div class="card-header">
           <div class="card-title">Quick Links</div>
@@ -2321,46 +2365,7 @@
     });
   }
 
-  function initWidgets() {
-    if (typeof interact === 'undefined') return;
 
-    interact('.dash-widget')
-      .draggable({
-        allowFrom: '.drag-bar',
-        inertia: false,
-        listeners: {
-          start: e => e.target.classList.add('dragging'),
-          move: e => {
-            const x = (parseFloat(e.target.dataset.x) || 0) + e.dx;
-            const y = (parseFloat(e.target.dataset.y) || 0) + e.dy;
-            e.target.style.transform = `translate(${x}px, ${y}px)`;
-            e.target.dataset.x = x;
-            e.target.dataset.y = y;
-          },
-          end: e => { e.target.classList.remove('dragging'); saveWidgetStates(); }
-        }
-      })
-      .resizable({
-        edges: { right: true, bottom: true, bottomRight: '.resize-handle' },
-        modifiers: [interact.modifiers.restrictSize({ minWidth: 260, minHeight: 80 })],
-        listeners: {
-          move: e => {
-            e.target.style.width = e.rect.width + 'px';
-            e.target.style.height = e.rect.height + 'px';
-            const x = (parseFloat(e.target.dataset.x) || 0) + (e.deltaRect.left || 0);
-            const y = (parseFloat(e.target.dataset.y) || 0) + (e.deltaRect.top || 0);
-            e.target.style.transform = `translate(${x}px, ${y}px)`;
-            e.target.dataset.x = x;
-            e.target.dataset.y = y;
-          },
-          end: () => saveWidgetStates()
-        }
-      });
-
-    restoreWidgetStates();
-  }
-
-  document.addEventListener('DOMContentLoaded', initWidgets);
 </script>
 
 </body>
